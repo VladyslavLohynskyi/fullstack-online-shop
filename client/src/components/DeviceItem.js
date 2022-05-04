@@ -4,7 +4,7 @@ import { Context } from "../index";
 import { Card, Col, Image } from "react-bootstrap";
 import Vector from "../assets/Vector.png";
 import { DEVICE_ROUTE, HTTP_ADRESS } from "../utils/consts";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 
 const DeviceItem = observer(({ item }) => {
   const navigate = useNavigate();
@@ -24,7 +24,7 @@ const DeviceItem = observer(({ item }) => {
         <div className="text-black-50 d-flex justify-content-between align-items-center">
           <div>{brand}</div>
           <div className="mt-1 d-flex align-items-center">
-            <div>{item.rating}</div>
+            <div>{Number(item.AvgRating).toFixed(1)}</div>
             <Image width={18} height={18} src={Vector} />
           </div>
         </div>
