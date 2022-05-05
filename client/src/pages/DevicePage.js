@@ -4,13 +4,20 @@ import { useState, useEffect } from "react";
 import { fetchOneDevice } from "../http/deviceApi";
 import { addToBasket } from "../http/basketApi";
 import { HTTP_ADRESS } from "../utils/consts";
+import { getOneRating } from "../http/ratingApi";
 
 const DevicePage = () => {
   const [device, setDevice] = useState({ info: [] });
+  const [rating, setRating] = useState(0);
   const { id } = useParams();
 
   useEffect(() => {
-    fetchOneDevice(id).then((data) => setDevice(data));
+    if (id) {
+      fetchOneDevice(id).then((data) => setDevice(data));
+      getOneRating(id).then((data) =>
+        setRating(Number(data.avgRating).toFixed(1))
+      );
+    }
   }, []);
   return (
     <Container className="d-flex flex-column justify-content-center ">
@@ -19,7 +26,9 @@ const DevicePage = () => {
         style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}
       >
         <div>
-          <Image src={HTTP_ADRESS + device.img} height={300} />
+          {device.img ? (
+            <Image src={HTTP_ADRESS + device.img} height={300} />
+          ) : null}
         </div>
         <div>
           <Card
@@ -30,7 +39,11 @@ const DevicePage = () => {
               height: 300,
             }}
           >
-            <div>#{device.id}</div>
+            <div>
+              {device.name} #{device.id}
+            </div>
+            <div>{rating}</div>
+
             <h3>{device.price} uah</h3>
             <Button
               variant={"outline-dark"}
