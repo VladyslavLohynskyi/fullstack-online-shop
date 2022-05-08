@@ -5,6 +5,8 @@ import { fetchOneDevice } from "../http/deviceApi";
 import { addToBasket } from "../http/basketApi";
 import { HTTP_ADRESS } from "../utils/consts";
 import { getOneRating } from "../http/ratingApi";
+import Vector from "../assets/Vector.png";
+import StarRating from "../components/StarRating/StarRating";
 
 const DevicePage = () => {
   const [device, setDevice] = useState({ info: [] });
@@ -42,7 +44,10 @@ const DevicePage = () => {
             <div>
               {device.name} #{device.id}
             </div>
-            <div>{rating}</div>
+            <div className="d-flex" style={{ alignItems: "center" }}>
+              <div>{rating}</div>
+              <Image width={25} height={25} src={Vector} />
+            </div>
 
             <h3>{device.price} uah</h3>
             <Button
@@ -55,6 +60,7 @@ const DevicePage = () => {
         </div>
       </Container>
       <Container>
+        <StarRating />
         <h1>Characteristics</h1>
         {device.info.map((info, index) => (
           <Row

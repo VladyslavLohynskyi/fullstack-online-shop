@@ -1,8 +1,10 @@
 const uuid = require("uuid");
 const path = require("path");
-const { Device, DeviceInfo } = require("../models/models");
+const { Device, DeviceInfo, Rating } = require("../models/models");
 const ApiError = require("../error/ApiError");
 const fs = require("fs").promises;
+const Sequelize = require("../db");
+const { QueryTypes } = require("sequelize");
 
 class DeviceController {
   async create(req, res, next) {
@@ -91,33 +93,42 @@ class DeviceController {
     limit = limit || 9;
 
     let offset = page * limit - limit;
+    let totalDevices;
 
     let devices;
     if (!brandId && !typeId) {
-      devices = await Device.findAndCountAll({ limit, offset });
+      devices = await Sequelize.query(
+        `SELECT id, name, price, rating, img, "createdAt", "updatedAt", "typeId", "brandId",(SELECT AVG(rate) FROM ratings WHERE "deviceId" = devices.id )AS "AvgRating"
+        FROM devices Limit ${limit} offset ${offset}`,
+        { type: QueryTypes.SELECT }
+      );
+      totalDevices = await Device.count();
     }
     if (brandId && !typeId) {
-      devices = await Device.findAndCountAll({
-        where: { brandId },
-        limit,
-        offset,
-      });
+      devices = await Sequelize.query(
+        `SELECT id, name, price, rating, img, "createdAt", "updatedAt", "typeId", "brandId",(SELECT AVG(rate) FROM ratings WHERE "deviceId" = devices.id )AS "AvgRating"
+        FROM devices WHERE "brandId"=${brandId} Limit ${limit} offset ${offset}`,
+        { type: QueryTypes.SELECT }
+      );
+      totalDevices = await Device.count({ where: { brandId } });
     }
     if (!brandId && typeId) {
-      devices = await Device.findAndCountAll({
-        where: { typeId },
-        limit,
-        offset,
-      });
+      devices = await Sequelize.query(
+        `SELECT id, name, price, rating, img, "createdAt", "updatedAt", "typeId", "brandId",(SELECT AVG(rate) FROM ratings WHERE "deviceId" = devices.id )AS "AvgRating"
+        FROM devices WHERE "typeId"=${typeId} Limit ${limit} offset ${offset}`,
+        { type: QueryTypes.SELECT }
+      );
+      totalDevices = await Device.count({ where: { typeId } });
     }
     if (brandId && typeId) {
-      devices = await Device.findAndCountAll({
-        where: { brandId, typeId },
-        limit,
-        offset,
-      });
+      devices = await Sequelize.query(
+        `SELECT id, name, price, rating, img, "createdAt", "updatedAt", "typeId", "brandId",(SELECT AVG(rate) FROM ratings WHERE "deviceId" = devices.id )AS "AvgRating"
+        FROM devices WHERE "typeId"=${typeId} AND "brandId"=${brandId}  Limit ${limit} offset ${offset}`,
+        { type: QueryTypes.SELECT }
+      );
+      totalDevices = await Device.count({ where: { typeId, brandId } });
     }
-    return res.json(devices);
+    return res.json({ count: totalDevices, rows: devices });
   }
 
   async deleteOne(req, res) {

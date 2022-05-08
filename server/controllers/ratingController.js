@@ -7,6 +7,7 @@ class RatingController {
   async addRating(req, res) {
     try {
       const { deviceId, rate } = req.body;
+
       const token = req.headers.authorization.split(" ")[1];
       const user = jwt.verify(token, process.env.SECRET_KEY);
       const device = await Device.findOne({ where: { id: deviceId } });
@@ -32,7 +33,7 @@ class RatingController {
   }
   async getAvgRating(req, res) {
     try {
-      const { deviceId } = req.body;
+      const { deviceId } = req.query;
       const device = await Device.findOne({ where: { id: deviceId } });
       if (!device) {
         return { message: "Error device not exist" };

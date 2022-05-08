@@ -10,6 +10,7 @@ const Basket = observer(() => {
 
   useEffect(() => {
     fetchBasket().then((data) => basketStore.setBasket(data));
+    console.log(basketStore.basket);
   }, []);
   const clearBasket = () => {
     deleteAll();
