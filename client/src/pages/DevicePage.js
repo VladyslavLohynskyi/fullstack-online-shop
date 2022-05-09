@@ -1,51 +1,59 @@
 import { Button, Card, Col, Container, Image, Row } from "react-bootstrap";
-import Star from "../assets/Star.png";
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { fetchOneDevice } from "../http/deviceApi";
 import { addToBasket } from "../http/basketApi";
 import { HTTP_ADRESS } from "../utils/consts";
+import { getAvgRating, addRating } from "../http/ratingApi";
+import Vector from "../assets/Vector.png";
+import StarRating from "../components/StarRating/StarRating";
+
 const DevicePage = () => {
   const [device, setDevice] = useState({ info: [] });
+  const [rating, setRating] = useState(0);
   const { id } = useParams();
+  const addRate = async (index) => {
+    await addRating({ deviceId: id, rate: index });
+    getAvgRating(id).then((data) =>
+      setRating(Number(data.avgRating).toFixed(1))
+    );
+  };
 
   useEffect(() => {
     fetchOneDevice(id).then((data) => setDevice(data));
+    getAvgRating(id).then((data) =>
+      setRating(Number(data.avgRating).toFixed(1))
+    );
   }, []);
+
   return (
-    <Col md={12} className="d-flex flex-column justify-content-center ">
-      <Container className="m-3 d-flex justify-content-center">
-        <Col md={4}>
-          <Image width={300} heigth={300} src={HTTP_ADRESS + device.img} />
-        </Col>
-        <Col md={4}>
-          <Row className="d-flex flex-column align-items-center ">
-            <h2 className="d-flex justify-content-center  ">{device.name}</h2>
-            <div
-              className="d-flex align-items-center justify-content-center"
-              style={{
-                background: `url(${Star}) no-repeat center center`,
-                width: 240,
-                height: 240,
-                backgroundSize: "cover",
-                fontSize: 64,
-              }}
-            >
-              {device.rating}
-            </div>
-          </Row>
-        </Col>
-        <Col md={4}>
+    <Container className="d-flex flex-column justify-content-center ">
+      <Container
+        className="m-3"
+        style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}
+      >
+        <div>
+          {device.img ? (
+            <Image src={HTTP_ADRESS + device.img} height={300} />
+          ) : null}
+        </div>
+        <div>
           <Card
             className="d-flex flex-column align-items-center justify-content-around "
             style={{
-              width: 300,
-              height: 300,
               fontSize: 32,
               border: "5px solid lightgray",
+              height: 300,
             }}
           >
-            <div>#{device.id}</div>
+            <div>
+              {device.name} #{device.id}
+            </div>
+            <div className="d-flex" style={{ alignItems: "center" }}>
+              <div>{rating}</div>
+              <Image width={25} height={25} src={Vector} />
+            </div>
+
             <h3>{device.price} uah</h3>
             <Button
               variant={"outline-dark"}
@@ -54,9 +62,10 @@ const DevicePage = () => {
               Add to Cart
             </Button>
           </Card>
-        </Col>
+        </div>
       </Container>
       <Container>
+        <StarRating addRate={addRate} />
         <h1>Characteristics</h1>
         {device.info.map((info, index) => (
           <Row
@@ -70,7 +79,7 @@ const DevicePage = () => {
           </Row>
         ))}
       </Container>
-    </Col>
+    </Container>
   );
 };
 

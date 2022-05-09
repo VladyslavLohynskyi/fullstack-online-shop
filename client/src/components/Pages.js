@@ -5,6 +5,7 @@ import { Pagination } from "react-bootstrap";
 
 const Pages = observer(() => {
   const { device } = useContext(Context);
+
   const pageCount = Math.ceil(device.totalCount / device.limit);
   const pages = [];
   for (let i = 0; i < pageCount; i++) {
