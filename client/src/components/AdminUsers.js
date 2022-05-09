@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { Card, Button, Col, Form } from "react-bootstrap";
 
-import { getByCriteria, getUser } from "../http/userApi";
+import { changeRole, getByCriteria, getUser } from "../http/userApi";
 
 const AdminUsers = () => {
   const [admins, setAdmins] = useState([]);
@@ -14,6 +14,17 @@ const AdminUsers = () => {
 
   const findUser = () => {
     getUser(email).then((data) => setUser(data));
+    setEmail("");
+  };
+
+  const deleteAdmin = async (email) => {
+    await changeRole(email, "USER");
+    setAdmins((prev) => prev.filter((el) => el.email !== email));
+  };
+  const addAdmin = async (user) => {
+    await changeRole(user.email, "ADMIN");
+    setAdmins((prev) => [...prev, user]);
+    setUser(null);
   };
 
   return (
@@ -43,7 +54,8 @@ const AdminUsers = () => {
               justifyContent: "space-around",
             }}
           >
-            <p style={{ margin: "auto" }}>{el.email}</p> <Button>D</Button>
+            <p style={{ margin: "auto" }}>{el.email}</p>{" "}
+            <Button onClick={() => deleteAdmin(el.email)}>D</Button>
           </Card>
         ))}
       </Col>
@@ -72,7 +84,7 @@ const AdminUsers = () => {
             }}
           >
             <p style={{ margin: "auto" }}>{user.email}</p>
-            <Button>+</Button>
+            <Button onClick={() => addAdmin(user)}>+</Button>
           </Card>
         ) : (
           <h4

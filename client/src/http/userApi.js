@@ -9,7 +9,14 @@ export const registration = async (email, password) => {
   localStorage.setItem("token", data.token);
   return jwt_decode(data.token);
 };
+export const changeRole = async (email, role) => {
+  const { data } = await $authHost.post("api/user/change", {
+    email,
+    role,
+  });
 
+  return data;
+};
 export const login = async (email, password) => {
   const { data } = await $host.post("api/user/login", {
     email,

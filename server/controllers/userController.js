@@ -61,13 +61,26 @@ class UserController {
   async getUser(req, res) {
     try {
       const { email } = req.query;
-      console.log(email);
       const user = await User.findOne({
         where: { email, role: "USER" },
       });
       return res.json(user);
     } catch (error) {
       res.json({ message: "get User by email " + error.message });
+    }
+  }
+  async changeRole(req, res) {
+    try {
+      const { email, role } = req.body;
+      await User.update(
+        { role },
+        {
+          where: { email },
+        }
+      );
+      return res.json({ message: "User " + email + " change role to " + role });
+    } catch (error) {
+      return res.json({ message: "Cant change role" });
     }
   }
 }
