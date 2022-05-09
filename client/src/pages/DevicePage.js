@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { fetchOneDevice } from "../http/deviceApi";
 import { addToBasket } from "../http/basketApi";
 import { HTTP_ADRESS } from "../utils/consts";
-import { getOneRating, addRating } from "../http/ratingApi";
+import { getAvgRating, addRating } from "../http/ratingApi";
 import Vector from "../assets/Vector.png";
 import StarRating from "../components/StarRating/StarRating";
 
@@ -12,17 +12,18 @@ const DevicePage = () => {
   const [device, setDevice] = useState({ info: [] });
   const [rating, setRating] = useState(0);
   const { id } = useParams();
-  const addRate = async(index) => {
+  const addRate = async (index) => {
     await addRating({ deviceId: id, rate: index });
-    getOneRating(id).then((data) =>
-    setRating(Number(data.avgRating).toFixed(1)))
+    getAvgRating(id).then((data) =>
+      setRating(Number(data.avgRating).toFixed(1))
+    );
   };
 
   useEffect(() => {
     fetchOneDevice(id).then((data) => setDevice(data));
-    getOneRating(id).then((data) =>
-    setRating(Number(data.avgRating).toFixed(1))
-  );
+    getAvgRating(id).then((data) =>
+      setRating(Number(data.avgRating).toFixed(1))
+    );
   }, []);
 
   return (

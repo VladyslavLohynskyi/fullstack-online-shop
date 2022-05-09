@@ -2,13 +2,18 @@ import { observer } from "mobx-react-lite";
 import { useContext, useEffect, useState } from "react";
 import { Context } from "../..";
 import style from "./StarRating.module.css";
+import { useParams } from "react-router-dom";
+import { getOneRating } from "../../http/ratingApi";
 
 const StarRating = observer(({ addRate }) => {
   const { user } = useContext(Context);
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
+  const { id } = useParams();
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    getOneRating(id).then((data) => setRating(data.rate));
+  }, []);
   return (
     <div>
       {user.isAuth ? (
