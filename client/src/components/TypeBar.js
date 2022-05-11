@@ -5,8 +5,19 @@ import { ListGroup } from "react-bootstrap";
 
 const TypeBar = observer(() => {
   const { device } = useContext(Context);
+
   return (
     <ListGroup>
+      <ListGroup.Item
+        style={{ cursor: "pointer" }}
+        active={!device.selectedType.id && !device.selectedBrand.idсв}
+        onClick={() => {
+          device.setSelectedType({});
+          device.setSelectedBrand({});
+        }}
+      >
+        All
+      </ListGroup.Item>
       {device.types.map((type) => (
         <ListGroup.Item
           style={{ cursor: "pointer" }}
