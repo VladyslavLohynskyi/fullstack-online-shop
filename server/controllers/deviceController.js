@@ -87,7 +87,8 @@ class DeviceController {
     }
   }
   async getAll(req, res) {
-    let { brandId, typeId, limit, page } = req.query;
+    let { brandId, typeId, value, limit, page } = req.query;
+    console.log(value);
     page = page || 1;
 
     limit = limit || 9;
@@ -99,34 +100,36 @@ class DeviceController {
     if (!brandId && !typeId) {
       devices = await Sequelize.query(
         `SELECT id, name, price, rating, img, "createdAt", "updatedAt", "typeId", "brandId",(SELECT AVG(rate) FROM ratings WHERE "deviceId" = devices.id )AS "AvgRating"
-        FROM devices Limit ${limit} offset ${offset}`,
+        FROM devices WHERE name LIKE '${value}%' Limit ${limit} offset ${offset}`,
         { type: QueryTypes.SELECT }
       );
-      totalDevices = await Device.count();
+      totalDevices = await Device.count({ where: { name: value } });
     }
     if (brandId && !typeId) {
       devices = await Sequelize.query(
         `SELECT id, name, price, rating, img, "createdAt", "updatedAt", "typeId", "brandId",(SELECT AVG(rate) FROM ratings WHERE "deviceId" = devices.id )AS "AvgRating"
-        FROM devices WHERE "brandId"=${brandId} Limit ${limit} offset ${offset}`,
+        FROM devices WHERE "brandId"=${brandId} AND name LIKE '${value}%' Limit ${limit} offset ${offset}`,
         { type: QueryTypes.SELECT }
       );
-      totalDevices = await Device.count({ where: { brandId } });
+      totalDevices = await Device.count({ where: { brandId, name: value } });
     }
     if (!brandId && typeId) {
       devices = await Sequelize.query(
         `SELECT id, name, price, rating, img, "createdAt", "updatedAt", "typeId", "brandId",(SELECT AVG(rate) FROM ratings WHERE "deviceId" = devices.id )AS "AvgRating"
-        FROM devices WHERE "typeId"=${typeId} Limit ${limit} offset ${offset}`,
+        FROM devices WHERE "typeId"=${typeId} AND name LIKE '${value}%' Limit ${limit} offset ${offset}`,
         { type: QueryTypes.SELECT }
       );
-      totalDevices = await Device.count({ where: { typeId } });
+      totalDevices = await Device.count({ where: { typeId, name: value } });
     }
     if (brandId && typeId) {
       devices = await Sequelize.query(
         `SELECT id, name, price, rating, img, "createdAt", "updatedAt", "typeId", "brandId",(SELECT AVG(rate) FROM ratings WHERE "deviceId" = devices.id )AS "AvgRating"
-        FROM devices WHERE "typeId"=${typeId} AND "brandId"=${brandId}  Limit ${limit} offset ${offset}`,
+        FROM devices WHERE "typeId"=${typeId} AND "brandId"=${brandId} AND name LIKE '${value}%'  Limit ${limit} offset ${offset}`,
         { type: QueryTypes.SELECT }
       );
-      totalDevices = await Device.count({ where: { typeId, brandId } });
+      totalDevices = await Device.count({
+        where: { typeId, brandId, name: value },
+      });
     }
     return res.json({ count: totalDevices, rows: devices });
   }
