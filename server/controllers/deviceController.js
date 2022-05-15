@@ -1,6 +1,11 @@
 const uuid = require("uuid");
 const path = require("path");
-const { Device, DeviceInfo, Rating } = require("../models/models");
+const {
+  Device,
+  DeviceInfo,
+  Rating,
+  BasketDevice,
+} = require("../models/models");
 const ApiError = require("../error/ApiError");
 const fs = require("fs").promises;
 const Sequelize = require("../db");
@@ -140,6 +145,9 @@ class DeviceController {
 
       const device = await Device.findOne({ where: { id } });
       if (device) {
+        await BasketDevice.destroy({ where: { deviceId: id } });
+        await Rating.destroy({ where: { deviceId: id } });
+        await DeviceInfo.destroy({ where: { deviceId: id } });
         await Device.destroy({ where: { id } });
         await fs.unlink(path.resolve(__dirname, "..", "static", device.img));
         return res.json({ message: "Device deleted", device });
